@@ -8,19 +8,15 @@ import requests
 from datetime import date, timedelta
 
 # --- Astrological Imports ---
-# Add kerykeion for astrological calculations. Ensure you have installed it:
-# pip install kerykeion
-try:
-    from kerykeion import AstrologicalSubject, NatalAspects, Report
-except ImportError:
-    class AstrologicalSubject:
-        def __init__(self, *args, **kwargs): pass
-    class NatalAspects:
-        def __init__(self, *args, **kwargs):
-            self.relevant_aspects = []
-    class Report:
-        def __init__(self, *args, **kwargs): pass
-        def get_full_report(self): return "Astrological report unavailable (running in browser)."
+# Running in browser without Kerykeion due to binary dependencies:
+class AstrologicalSubject:
+    def __init__(self, *args, **kwargs): pass
+class NatalAspects:
+    def __init__(self, *args, **kwargs):
+        self.relevant_aspects = []
+class Report:
+    def __init__(self, *args, **kwargs): pass
+    def get_full_report(self): return "Astrological report unavailable (running in browser)."
 
 
 # --- Configuration ---
