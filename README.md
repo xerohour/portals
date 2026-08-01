@@ -50,11 +50,7 @@ Do notice though; that the LLM is simply a tool for interpretation. It improvise
 ## Prerequisites
 
 *   **Python 3.8+**
-*   **Ollama**: You must have Ollama installed and running on your machine. You can download it from [ollama.ai](https://ollama.ai/).
-*   **An Ollama Model**: You need a model to power the LLM. We recommend `llama3`. You can pull it by running:
-    ```sh
-    e.g ollama pull qwen3:4b-instruct-2507-q4_K_M
-    ```
+*   **Gemini API Key**: You need a valid API key from Google AI Studio to power the LLM.
 
 ## Setup
 
@@ -68,7 +64,6 @@ Do notice though; that the LLM is simply a tool for interpretation. It improvise
     ```sh
     pip install -r requirements.txt
     ```
-    *(Note: A `requirements.txt` file would contain `streamlit`, `langchain-google-genai`, and `langchain-community`)*
 
 3.  **Prepare the Sacred Text:**
     The application requires a file named `NumBible.TXT` in the same directory. This file should be a plain text version of a religious text (like the Bible), where each line is numbered. The script is configured for a file with up to `100117` lines.
@@ -84,7 +79,7 @@ Do notice though; that the LLM is simply a tool for interpretation. It improvise
     ```
 
 2.  **Configure the LLM:**
-    In the web interface, enter the name of your downloaded Ollama model (e.g., `llama3`) and click "Connect to Ollama". You must do this before consulting the oracle.
+    In the web interface, enter your Gemini API Key and model name (e.g., `gemini-2.5-flash`) and click "Connect to Gemini". You must do this before consulting the oracle.
 
 3.  **Consult the Oracle:**
     Once the LLM is connected, perform your real-world "offering". When you are ready, click the "Consult the Oracle" button to see how your story unfolds.
