@@ -14,8 +14,14 @@ from datetime import date, timedelta
 try:
     from kerykeion import AstrologicalSubject, NatalAspects, Report
 except ImportError:
-    st.error("The 'kerykeion' library is not installed. Please install it by running: pip install kerykeion")
-    st.stop()
+    class AstrologicalSubject:
+        def __init__(self, *args, **kwargs): pass
+    class NatalAspects:
+        def __init__(self, *args, **kwargs):
+            self.relevant_aspects = []
+    class Report:
+        def __init__(self, *args, **kwargs): pass
+        def get_full_report(self): return "Astrological report unavailable (running in browser)."
 
 
 # --- Configuration ---
