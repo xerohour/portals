@@ -5,7 +5,7 @@ import random
 import os
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from langchain_community.llms import Ollama
+import requests
 from datetime import date, timedelta
 
 # --- Astrological Imports ---
@@ -42,6 +42,27 @@ def strip_think_tags(text: str) -> str:
     """
     pattern = r"<think>.*?</think>"
     return re.sub(pattern, "", text, flags=re.DOTALL)
+
+# --- Gemini REST Wrapper ---
+from langchain_core.language_models.llms import LLM
+from typing import Any, List, Optional
+class GeminiREST(LLM):
+    api_key: str
+    model_name: str = "gemini-2.5-flash"
+    @property
+    def _llm_type(self) -> str:
+        return "gemini_rest"
+    def _call(self, prompt: str, stop: Optional[List[str]] = None, **kwargs: Any) -> str:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model_name}:generateContent?key={self.api_key}"
+        data = {"contents": [{"parts":[{"text": prompt}]}]}
+        response = requests.post(url, headers={"Content-Type": "application/json"}, json=data)
+        if response.status_code != 200:
+            raise Exception(f"Gemini API Error: {response.text}")
+        result = response.json()
+        try:
+            return result["candidates"][0]["content"]["parts"][0]["text"]
+        except (KeyError, IndexError):
+            return str(result)
 
 # --- Astrological Data Functions (from astro.py) ---
 
@@ -263,16 +284,20 @@ with col1:
 
     st.subheader("1. Configure Oracle")
     
-    ollama_model = st.text_input("Enter Ollama model name:", "qwen3:30b-a3b-thinking-2507-q4_K_M")
-    if st.button("Connect to Ollama"):
-        try:
-            with st.spinner(f"Connecting to Ollama model '{ollama_model}'..."):
-                llm_instance = Ollama(model=ollama_model)
-            st.session_state.llm = llm_instance
-            st.success(f"Successfully connected to Ollama with model '{ollama_model}'.")
-        except Exception as e:
-            st.error(f"Failed to connect to Ollama. Ensure Ollama is running and the model is downloaded. Error: {e}")
-            st.session_state.llm = None
+    gemini_api_key = st.text_input("Enter Gemini API Key:", type="password")
+    gemini_model = st.text_input("Enter Gemini model name:", "gemini-2.5-flash")
+    if st.button("Connect to Gemini"):
+        if not gemini_api_key:
+            st.error("Please enter a valid API key.")
+        else:
+            try:
+                with st.spinner(f"Configuring Gemini model '{gemini_model}'..."):
+                    llm_instance = GeminiREST(api_key=gemini_api_key, model_name=gemini_model)
+                st.session_state.llm = llm_instance
+                st.success(f"Successfully configured Gemini with model '{gemini_model}'.")
+            except Exception as e:
+                st.error(f"Failed to configure Gemini. Error: {e}")
+                st.session_state.llm = None
     
     st.markdown("---")
     st.subheader("2. Set the Date")
