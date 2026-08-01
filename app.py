@@ -41,7 +41,7 @@ def strip_think_tags(text: str) -> str:
 # --- Gemini REST Wrapper ---
 from typing import Any, List, Optional
 class GeminiREST:
-    def __init__(self, api_key: str, model_name: str = "gemini-2.5-flash"):
+    def __init__(self, api_key: str, model_name: str = "gemini-1.5-flash"):
         self.api_key = api_key
         self.model_name = model_name
 
@@ -270,7 +270,7 @@ with col1:
     st.subheader("1. Configure Oracle")
     
     gemini_api_key = st.text_input("Enter Gemini API Key:", type="password")
-    gemini_model = st.text_input("Enter Gemini model name:", "gemini-2.5-flash")
+    gemini_model = st.text_input("Enter Gemini model name:", "gemini-1.5-flash")
     if st.button("Connect to Gemini"):
         if not gemini_api_key:
             st.error("Please enter a valid API key.")
