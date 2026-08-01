@@ -23,7 +23,7 @@ class Report:
 BIBLE_FILE = "NumBible.TXT"
 CAMPAIGN_FILE = "campaign.json"
 MAX_BIBLE_LINE = 100117
-RNG_MAX = 1000000
+RNG_MAX = MAX_BIBLE_LINE
 
 def strip_think_tags(text: str) -> str:
     """
