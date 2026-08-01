@@ -3,8 +3,7 @@ import re
 import json
 import random
 import os
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
+
 import requests
 from datetime import date, timedelta
 
@@ -44,15 +43,13 @@ def strip_think_tags(text: str) -> str:
     return re.sub(pattern, "", text, flags=re.DOTALL)
 
 # --- Gemini REST Wrapper ---
-from langchain_core.language_models.llms import LLM
 from typing import Any, List, Optional
-class GeminiREST(LLM):
-    api_key: str
-    model_name: str = "gemini-2.5-flash"
-    @property
-    def _llm_type(self) -> str:
-        return "gemini_rest"
-    def _call(self, prompt: str, stop: Optional[List[str]] = None, **kwargs: Any) -> str:
+class GeminiREST:
+    def __init__(self, api_key: str, model_name: str = "gemini-2.5-flash"):
+        self.api_key = api_key
+        self.model_name = model_name
+
+    def generate(self, prompt: str) -> str:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model_name}:generateContent?key={self.api_key}"
         data = {"contents": [{"parts":[{"text": prompt}]}]}
         response = requests.post(url, headers={"Content-Type": "application/json"}, json=data)
@@ -171,10 +168,7 @@ def check_semantic_resonance(paragraph, last_chapter_content):
 
     Does the religious paragraph semantically match the themes of the chapter? Respond with only "High Resonance" or "Low Resonance".
     """
-    prompt = ChatPromptTemplate.from_template(prompt_text)
-    chain = prompt | llm | StrOutputParser()
-    
-    response = chain.invoke({})
+    response = llm.generate(prompt_text)
     response = strip_think_tags(response)
     st.session_state.debug_resonance = response # for debugging
     return "High Resonance" in response, response
@@ -199,10 +193,7 @@ def determine_fantasy_entity(paragraph):
 
     Respond with only the chosen category name.
     """
-    prompt = ChatPromptTemplate.from_template(prompt_text)
-    chain = prompt | llm | StrOutputParser()
-    
-    response = chain.invoke({})
+    response = llm.generate(prompt_text)
     response = strip_think_tags(response)
     st.session_state.debug_entity = response # for debugging
     return response.strip()
@@ -250,9 +241,7 @@ def generate_next_chapter(campaign_history, paragraph, trimmed_chart, entity_typ
     
     End the chapter on a compelling note.
     """
-    prompt = ChatPromptTemplate.from_template(prompt_text)
-    chain = prompt | llm | StrOutputParser()
-    response = chain.invoke({})
+    response = llm.generate(prompt_text)
     response = strip_think_tags(response)
 
     return response.strip()
