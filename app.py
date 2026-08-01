@@ -343,7 +343,9 @@ with col1:
                         st.session_state.messages.append("The verse holds no meaning for your current path. Consult again.")
                 else:
                     st.session_state.messages.append("The number is outside the sacred texts. The oracle offers no guidance.")
-            
+            except Exception as e:
+                st.error(f"Oracle Error: {str(e)}")
+                st.session_state.messages.append(f"**Error during generation:** {str(e)}")
             finally:
                 st.session_state.processing = False
                 st.rerun()
