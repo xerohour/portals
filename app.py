@@ -270,11 +270,31 @@ with col1:
     st.subheader("1. Configure Oracle")
     
     gemini_api_key = st.text_input("Enter Gemini API Key:", type="password")
-    gemini_model = st.text_input("Enter Gemini model name:", "gemini-3.1-flash")
-    if st.button("Connect to Gemini"):
-        if not gemini_api_key:
-            st.error("Please enter a valid API key.")
+    
+    if gemini_api_key:
+        if 'available_models' not in st.session_state or st.session_state.get('api_key_for_models') != gemini_api_key:
+            with st.spinner("Fetching available models..."):
+                try:
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models?key={gemini_api_key}"
+                    response = requests.get(url)
+                    if response.status_code == 200:
+                        models_data = response.json().get("models", [])
+                        valid_models = [m["name"].split("/")[-1] for m in models_data if "generateContent" in m.get("supportedGenerationMethods", [])]
+                        st.session_state.available_models = valid_models
+                        st.session_state.api_key_for_models = gemini_api_key
+                    else:
+                        st.error(f"Failed to fetch models: {response.text}")
+                        st.session_state.available_models = []
+                except Exception as e:
+                    st.error(f"Error fetching models: {e}")
+                    st.session_state.available_models = []
+                    
+        if st.session_state.get('available_models'):
+            gemini_model = st.selectbox("Select Gemini model:", st.session_state.available_models)
         else:
+            gemini_model = st.text_input("Enter Gemini model name:", "gemini-1.5-flash")
+
+        if st.button("Connect to Gemini"):
             try:
                 with st.spinner(f"Configuring Gemini model '{gemini_model}'..."):
                     llm_instance = GeminiREST(api_key=gemini_api_key, model_name=gemini_model)
@@ -283,6 +303,8 @@ with col1:
             except Exception as e:
                 st.error(f"Failed to configure Gemini. Error: {e}")
                 st.session_state.llm = None
+    else:
+        st.info("Please enter your API key to load available models.")
     
     st.markdown("---")
     st.subheader("2. Set the Date")
